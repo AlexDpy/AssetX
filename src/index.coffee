@@ -2,11 +2,10 @@ program = require 'commander'
 pkg = require '../package.json'
 path = require 'path'
 fs = require 'fs'
-Output = require './output'
+output = require './output'
 AssetX = require './assetx'
 
 
-output = new Output()
 output.bigOne()
 
 
@@ -14,7 +13,7 @@ program
   .version pkg.version
   .option '-C, --config-file [config-file.yml]', 'path to yaml config file (default: assetx.yml)', 'assetx.yml'
 
-assetX = new AssetX path.join(process.cwd(), program.configFile), output
+assetX = new AssetX path.join(process.cwd(), program.configFile)
 
 program
   .command 'run'
