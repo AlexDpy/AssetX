@@ -11,13 +11,14 @@ RegExpHelper = require './regexp-helper'
 
 module.exports = class AssetX
 
-  constructor: (@configFile) ->
+  constructor: (@options) ->
     try
-      @config = config.read @configFile
+      @config = config.read @options.configFile
     catch e
-      throw new Error 'The configFile "' + @configFile + '" does not exist'
+      throw new Error 'The configFile "' + @options.configFile + '" does not exist'
 
     config.validate @config
+    @config = config.mergeRecursive @config, @options
 
   replace: ->
     output.title 'Replace ...'
@@ -29,7 +30,7 @@ module.exports = class AssetX
 
         for assetName, assetConfig of @config.assets
           for env in ['dev', 'prod']
-            helper = new RegExpHelper(viewFile, env, assetName, @config)
+            helper = new RegExpHelper(viewFile, env, assetName, assetConfig)
             regExp = helper.getRegExp()
 
             if data.match regExp
@@ -43,14 +44,15 @@ module.exports = class AssetX
     output.title 'Concat ...'
 
     for assetName, assetConfig of @config.assets
-      specialPipe = if path.extname(assetName) is '.css' then minifyCss else uglify
-
       output.log 'Concat and minify ' + assetName
 
+      ext = path.extname(assetName).substr 1
+      specialPipe = if ext is 'css' then minifyCss else uglify
+
       gulp
-        .src(assetConfig.files.map ((value) ->
-          path.join @config.devFolder, value
-        ).bind(@))
-        .pipe concat(assetName)
+        .src(assetConfig.files.map (value) ->
+          path.join assetConfig.devFolder, value
+        )
+        .pipe concat(assetConfig.filename)
         .pipe specialPipe.call()
-        .pipe gulp.dest(path.join @config.prodFolder)
+        .pipe gulp.dest(path.join assetConfig.prodFolder)

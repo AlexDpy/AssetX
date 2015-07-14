@@ -7,7 +7,12 @@ AssetX = require './assetx'
 
 
 assetX = (program) ->
-  new AssetX path.join(process.cwd(), program.configFile)
+
+  options =
+    configFile: path.join(process.cwd(), program.configFile)
+    debug: program.debug or false
+
+  new AssetX options
 
 
 output.bigOne()
@@ -15,9 +20,8 @@ output.bigOne()
 
 program
   .version pkg.version
-  .option '-C, --config-file [config-file.yml]', 'path to yaml config file (default: assetx.yml)', 'assetx.yml'
-  .option '-D, --debug', 'display more information in the console', false
-
+  .option '-C, --config-file [path/to/config-file.yml]', 'path to yaml config file (default: assetx.yml)', 'assetx.yml'
+  .option '-D, --debug', 'display more information in the console'
 
 try
   program

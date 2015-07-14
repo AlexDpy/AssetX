@@ -1,10 +1,13 @@
 fs = require 'fs'
 yaml = require 'js-yaml'
 path = require 'path'
+defaultTags = require './tags'
+revHash = require 'rev-hash'
 
 
 module.exports.read = (configFile) ->
   yaml.safeLoad(fs.readFileSync configFile, 'utf8')
+
 
 
 module.exports.validate = (config) ->
@@ -23,7 +26,7 @@ module.exports.validate = (config) ->
   else
     for view in config.views
       ext = path.extname(view).substr 1
-      if ext not in ['html', 'twig', 'jade']
+      if ext not in Object.keys defaultTags
         errors.push 'config.views : only html, twig and jade are supported, "' + view + '" given'
 
   if config.assets is undefined
@@ -37,6 +40,46 @@ module.exports.validate = (config) ->
       else if not Array.isArray asset.files
         errors.push 'config.assets["' + name + '"].files must be an array'
 
-
   if errors.length > 0
     throw new Error('Some configuration are missing in your config file, see below :\n' + errors.join '\n')
+
+
+
+module.exports.mergeRecursive = (config, options) ->
+
+  for assetName, assetConfig of config.assets
+    assetConfig.devFolder = config.devFolder if assetConfig.devFolder is undefined
+    assetConfig.prodFolder = config.prodFolder if assetConfig.prodFolder is undefined
+    assetConfig.devBaseUrl = config.devBaseUrl if assetConfig.devBaseUrl is undefined
+    assetConfig.prodBaseUrl = config.prodBaseUrl if assetConfig.prodBaseUrl is undefined
+    assetConfig.cacheBusting = config.cacheBusting if assetConfig.cacheBusting is undefined
+    assetConfig.ext = path.extname(assetName).substr 1
+
+    tags = {}
+    for viewEngine, defaults of defaultTags
+      if assetConfig.tags and assetConfig.tags[viewEngine]
+        tags[viewEngine] = assetConfig.tags[viewEngine]
+      else if config.tags and  config.tags[viewEngine] and config.tags[viewEngine][assetConfig.ext]
+        tags[viewEngine] = config.tags[viewEngine][assetConfig.ext]
+      else
+        tags[viewEngine] = defaults.tags[assetConfig.ext]
+
+    assetConfig.tags = tags
+
+    if assetConfig.cacheBusting is true
+      buffers = []
+      for file in assetConfig.files
+        buffers.push fs.readFileSync(path.join(assetConfig.devFolder, file))
+
+      hash = revHash Buffer.concat(buffers)
+
+      assetConfig.filename = assetName.replace(
+        new RegExp '([.*\/]*?)(.*)(\.' + assetConfig.ext + ')', 'g'
+        '$1$2_' + hash + '$3'
+      )
+    else
+      assetConfig.filename = assetName
+
+    config.assets[assetName] = assetConfig
+
+  config
