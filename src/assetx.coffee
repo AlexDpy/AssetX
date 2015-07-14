@@ -1,5 +1,4 @@
 fs = require 'fs'
-yaml = require 'js-yaml'
 glob = require 'glob'
 path = require 'path'
 gulp = require 'gulp'
@@ -7,28 +6,18 @@ concat = require 'gulp-concat'
 uglify = require 'gulp-uglify'
 minifyCss = require 'gulp-minify-css'
 output = require './output'
+config = require './config'
 RegExpHelper = require './regexp-helper'
-
 
 module.exports = class AssetX
 
   constructor: (@configFile) ->
-    @config = yaml.safeLoad(fs.readFileSync(@configFile, 'utf8'))
-    @validateConfig()
+    try
+      @config = config.read @configFile
+    catch e
+      throw new Error 'The configFile "' + @configFile + '" does not exist'
 
-  validateConfig: ->
-    errors = []
-    errors.push('- the devFolder is not defined') if not @config.devFolder
-    errors.push('- the prodFolder is not defined') if not @config.prodFolder
-    errors.push('- views are not defined') if not @config.views or not @config.views.length
-    errors.push('- assets are not defined') if not @config.assets
-
-    if errors.length > 0
-      output.error 'Some configuration are missing in your config file, see below :'
-      for error in errors
-        output.log error
-
-      process.exit 1
+    config.validate @config
 
   replace: ->
     output.title 'Replace ...'
