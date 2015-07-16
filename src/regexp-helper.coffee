@@ -1,4 +1,5 @@
 path = require 'path'
+glob = require 'glob'
 defaultTags = require './tags'
 
 module.exports = class RegExpHelper
@@ -32,7 +33,8 @@ module.exports = class RegExpHelper
     if @env is 'prod'
       html += '$1' + @tagPattern.replace('%src%', path.join(@assetConfig.prodBaseUrl, @assetConfig.filename))
     else
-      for devAsset in @assetConfig.files
-        html += '$1' + @tagPattern.replace('%src%', path.join(@assetConfig.devBaseUrl, devAsset))
+      for globPattern in @assetConfig.files
+        for file in glob.sync path.join(@assetConfig.devFolder, globPattern)
+          html += '$1' + @tagPattern.replace('%src%', file.replace(@assetConfig.devFolder, @assetConfig.devBaseUrl))
 
     html

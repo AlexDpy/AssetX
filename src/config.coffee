@@ -1,6 +1,7 @@
 fs = require 'fs'
 yaml = require 'js-yaml'
 path = require 'path'
+glob = require 'glob'
 selectn = require 'selectn'
 defaultTags = require './tags'
 revHash = require 'rev-hash'
@@ -64,8 +65,9 @@ module.exports.mergeRecursive = (config, options) ->
 
     if assetConfig.cacheBusting is true
       buffers = []
-      for file in assetConfig.files
-        buffers.push fs.readFileSync(path.join(assetConfig.devFolder, file))
+      for globPattern in assetConfig.files
+        for file in glob.sync path.join(assetConfig.devFolder, globPattern)
+          buffers.push fs.readFileSync(file)
 
       hash = revHash Buffer.concat(buffers)
 
