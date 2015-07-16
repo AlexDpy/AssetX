@@ -20,8 +20,8 @@ module.exports = class AssetX
     config.validate @config
     @config = config.mergeRecursive @config, @options
 
-  replace: ->
-    output.title 'Replace ...'
+  replace: (reset = false) ->
+    output.title 'Replace ...' if not reset
 
     for pattern in @config.views
       for viewFile in glob.sync pattern
@@ -35,8 +35,8 @@ module.exports = class AssetX
 
             if data.match regExp
               match = true
-              data = data.replace regExp, helper.getReplacement()
-              output.log 'Replace ' + env + ':' + assetName + ' tag in ' + viewFile
+              data = data.replace regExp, helper.getReplacement(reset)
+              output.log 'Replace ' + env + ':' + assetName + ' tag in ' + viewFile if not reset
 
         fs.writeFileSync viewFile, data, encoding: 'utf-8' if match is true
 
@@ -56,3 +56,8 @@ module.exports = class AssetX
         .pipe concat(assetConfig.filename)
         .pipe specialPipe.call()
         .pipe gulp.dest(path.join assetConfig.prodFolder)
+
+  reset: ->
+    output.title 'Reset views ...'
+
+    @replace true

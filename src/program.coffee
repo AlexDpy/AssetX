@@ -44,6 +44,12 @@ try
     .action ->
       assetX(program).replace()
 
+  program
+    .command 'reset'
+    .description 'reset all "assetx" tags in views'
+    .action ->
+      assetX(program).reset()
+
   program.parse process.argv
 
   if program.args.length is 0

@@ -23,8 +23,11 @@ module.exports = class RegExpHelper
     return new RegExp('([\\s\\t]+?)' + @startTag + '([\\s\\S]*?)' + @endTag, 'g')
 
 
-  getReplacement: ->
-    return '$1' + @startTag + @getTags() + '$1' + @endTag
+  getReplacement: (reset = false)->
+    if not reset
+      '$1' + @startTag + @getTags() + '$1' + @endTag
+    else
+      '$1' + @startTag + defaultTags[@viewEngine].endTag
 
 
   getTags: ->
