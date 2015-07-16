@@ -1,6 +1,7 @@
 fs = require 'fs'
 yaml = require 'js-yaml'
 path = require 'path'
+selectn = require 'selectn'
 defaultTags = require './tags'
 revHash = require 'rev-hash'
 
@@ -48,21 +49,16 @@ module.exports.validate = (config) ->
 module.exports.mergeRecursive = (config, options) ->
 
   for assetName, assetConfig of config.assets
-    assetConfig.devFolder = config.devFolder if assetConfig.devFolder is undefined
-    assetConfig.prodFolder = config.prodFolder if assetConfig.prodFolder is undefined
-    assetConfig.devBaseUrl = config.devBaseUrl if assetConfig.devBaseUrl is undefined
-    assetConfig.prodBaseUrl = config.prodBaseUrl if assetConfig.prodBaseUrl is undefined
-    assetConfig.cacheBusting = config.cacheBusting if assetConfig.cacheBusting is undefined
+    for key in ['devFolder', 'prodFolder', 'devBaseUrl', 'prodBaseUrl', 'cacheBusting']
+      assetConfig[key] = config[key] if assetConfig[key] is undefined
+
     assetConfig.ext = path.extname(assetName).substr 1
 
     tags = {}
     for viewEngine, defaults of defaultTags
-      if assetConfig.tags and assetConfig.tags[viewEngine]
-        tags[viewEngine] = assetConfig.tags[viewEngine]
-      else if config.tags and  config.tags[viewEngine] and config.tags[viewEngine][assetConfig.ext]
-        tags[viewEngine] = config.tags[viewEngine][assetConfig.ext]
-      else
-        tags[viewEngine] = defaults.tags[assetConfig.ext]
+      tags[viewEngine] = selectn('tags.' + viewEngine, assetConfig) or
+        selectn('tags.' + viewEngine + '.' + assetConfig.ext, config) or
+        selectn('tags.' + assetConfig.ext, defaults)
 
     assetConfig.tags = tags
 
