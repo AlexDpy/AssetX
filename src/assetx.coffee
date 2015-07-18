@@ -46,8 +46,7 @@ module.exports = class AssetX
     for assetName, assetConfig of @config.assets
       output.log 'Concat ' + assetName
 
-      ext = path.extname(assetName).substr 1
-      specialPipe = if ext is 'css' then minifyCss else uglify
+      specialPipe = if assetConfig.ext is 'css' then minifyCss else uglify
 
       gulp
         .src(assetConfig.files.map (value) ->
