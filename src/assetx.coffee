@@ -44,7 +44,7 @@ module.exports = class AssetX
     output.title 'Concat ...'
 
     for assetName, assetConfig of @config.assets
-      output.log 'Concat and minify ' + assetName
+      output.log 'Concat ' + assetName
 
       ext = path.extname(assetName).substr 1
       specialPipe = if ext is 'css' then minifyCss else uglify
@@ -56,6 +56,10 @@ module.exports = class AssetX
         .pipe concat(assetConfig.filename)
         .pipe specialPipe.call()
         .pipe gulp.dest(path.join assetConfig.prodFolder)
+
+      if assetConfig.filename isnt assetConfig.oldFilename
+        try
+          fs.unlinkSync path.join(assetConfig.prodFolder, assetConfig.oldFilename)
 
   reset: ->
     output.title 'Reset views ...'

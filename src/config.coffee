@@ -63,20 +63,27 @@ module.exports.mergeRecursive = (config, options) ->
 
     assetConfig.tags = tags
 
+    regexp = new RegExp '([.*\/]*?)(.*)(\.' + assetConfig.ext + ')', 'g'
+
     if assetConfig.cacheBusting is true
       buffers = []
+
       for globPattern in assetConfig.files
         for file in glob.sync path.join(assetConfig.devFolder, globPattern)
           buffers.push fs.readFileSync(file)
 
       hash = revHash Buffer.concat(buffers)
 
-      assetConfig.filename = assetName.replace(
-        new RegExp '([.*\/]*?)(.*)(\.' + assetConfig.ext + ')', 'g'
-        '$1$2_' + hash + '$3'
-      )
+      assetConfig.filename = assetName.replace regexp, '$1$2_' + hash + '$3'
     else
       assetConfig.filename = assetName
+
+    oldProdAssets = glob.sync path.join(assetConfig.prodFolder, assetName.replace(regexp, '$1$2*$3'))
+
+    if oldProdAssets.length is 0
+      assetConfig.oldFilename = assetName
+    else
+      assetConfig.oldFilename = oldProdAssets[0].replace assetConfig.prodFolder + '/', ''
 
     config.assets[assetName] = assetConfig
 
