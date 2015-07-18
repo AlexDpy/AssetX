@@ -50,6 +50,13 @@ try
     .action ->
       assetX(program).reset()
 
+  program
+    .command 'mv'
+    .arguments '<src> <dest>'
+    .description 'move an asset'
+    .action (src, dest) ->
+      assetX(program).mv(src, dest)
+
   program.parse process.argv
 
   if program.args.length is 0

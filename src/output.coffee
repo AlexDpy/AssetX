@@ -17,4 +17,4 @@ module.exports.error = (text) ->
   console.error '  ' + colors.redBG text
 
 module.exports.title = (text) ->
-  console.log '  ' + colors.yellow.underline text
+  console.log '  ' + colors.yellow.underline text + ' ...'

@@ -5,11 +5,14 @@ gulp = require 'gulp'
 concat = require 'gulp-concat'
 uglify = require 'gulp-uglify'
 minifyCss = require 'gulp-minify-css'
+mv = require 'mv'
 output = require './output'
 config = require './config'
 RegExpHelper = require './regexp-helper'
 
 module.exports = class AssetX
+
+
 
   constructor: (@options) ->
     try
@@ -20,13 +23,15 @@ module.exports = class AssetX
     config.validate @config
     @config = config.mergeRecursive @config, @options
 
+
+
   replace: (reset = false) ->
-    output.title 'Replace ...' if not reset
+    output.title 'Replacing' if not reset
 
     for pattern in @config.views
       for viewFile in glob.sync pattern
         match = false
-        data = fs.readFileSync viewFile, encoding: 'utf-8'
+        data = fs.readFileSync viewFile, encoding: 'utf8'
 
         for assetName, assetConfig of @config.assets
           for env in ['dev', 'prod']
@@ -38,10 +43,12 @@ module.exports = class AssetX
               data = data.replace regExp, helper.getReplacement(reset)
               output.log 'Replace ' + env + ':' + assetName + ' tag in ' + viewFile if not reset
 
-        fs.writeFileSync viewFile, data, encoding: 'utf-8' if match is true
+        fs.writeFileSync viewFile, data, encoding: 'utf8' if match is true
+
+
 
   concat: ->
-    output.title 'Concat ...'
+    output.title 'Concatenating'
 
     for assetName, assetConfig of @config.assets
       output.log 'Concat ' + assetName
@@ -60,7 +67,58 @@ module.exports = class AssetX
         try
           fs.unlinkSync path.join(assetConfig.prodFolder, assetConfig.oldFilename)
 
+
+
   reset: ->
-    output.title 'Reset views ...'
+    output.title 'Resetting views'
 
     @replace true
+
+
+
+  mv: (src, dest) ->
+    output.title 'Moving an asset'
+
+    if @config.assets[src] is undefined
+      throw new Error 'No "' + src + '" asset is defined'
+
+    yamlConfig = fs.readFileSync @options.configFile, encoding: 'utf8'
+      .replace new RegExp('([\'"]?)' + src + '([\'"]?)([\\t\\s]*?):', 'g'), '$1' + dest + '$2$3:'
+
+    source = src.split '.'
+    source.pop()
+    destination = dest.split '.'
+    destination.pop()
+
+    filename = @config.assets[src].oldFilename.replace source.join('.'), destination.join('.')
+
+    output.log 'Move ' + src + ' to ' + dest
+    mv(
+      path.join @config.prodFolder, @config.assets[src].oldFilename
+      path.join @config.prodFolder, filename
+      mkdirp: true
+      ((err) ->
+        return if err
+
+        output.log 'Update "' + @options.configFile + '"'
+        fs.writeFileSync @options.configFile, yamlConfig, encoding: 'utf8'
+
+        for pattern in @config.views
+          for viewFile in glob.sync pattern
+            match = false
+            data = fs.readFileSync viewFile, encoding: 'utf8'
+            regExp = new RegExp('assetx (prod|dev):' + src, 'g')
+
+            if data.match regExp
+              match = true
+              data = data.replace(regExp, 'assetx $1:' + dest)
+
+            if match is true
+              output.log 'Update "' + viewFile + '"'
+              fs.writeFileSync viewFile, data, encoding: 'utf8'
+
+        new AssetX(@options).replace()
+      ).bind @
+    )
+
+
