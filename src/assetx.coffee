@@ -25,25 +25,10 @@ module.exports = class AssetX
 
 
 
-  replace: (reset = false) ->
-    output.title 'Replacing' if not reset
+  replace: () ->
+    output.title 'Replacing'
 
-    for pattern in @config.views
-      for viewFile in glob.sync pattern
-        match = false
-        data = fs.readFileSync viewFile, encoding: 'utf8'
-
-        for assetName, assetConfig of @config.assets
-          for env in ['dev', 'prod']
-            helper = new RegExpHelper(viewFile, env, assetName, assetConfig)
-            regExp = helper.getRegExp()
-
-            if data.match regExp
-              match = true
-              data = data.replace regExp, helper.getReplacement(reset)
-              output.log 'Replace ' + env + ':' + assetName + ' tag in ' + viewFile if not reset
-
-        fs.writeFileSync viewFile, data, encoding: 'utf8' if match is true
+    replaceTags @
 
 
 
@@ -72,7 +57,7 @@ module.exports = class AssetX
   reset: ->
     output.title 'Resetting views'
 
-    @replace true
+    replaceTags @, true
 
 
 
@@ -120,5 +105,26 @@ module.exports = class AssetX
         new AssetX(@options).replace()
       ).bind @
     )
+
+
+
+  replaceTags = (assetX, reset = false) ->
+    for pattern in assetX.config.views
+      for viewFile in glob.sync pattern
+        match = false
+        data = fs.readFileSync viewFile, encoding: 'utf8'
+
+        for assetName, assetConfig of assetX.config.assets
+          for env in ['dev', 'prod']
+            helper = new RegExpHelper(viewFile, env, assetName, assetConfig)
+            regExp = helper.getRegExp()
+            replacement = if reset then helper.getResetReplacement() else helper.getReplacement()
+
+            if data.match regExp
+              match = true
+              data = data.replace regExp, replacement
+              output.log (if reset then 'Reset' else 'Replace') + ' ' + env + ':' + assetName + ' tag in ' + viewFile
+
+        fs.writeFileSync viewFile, data, encoding: 'utf8' if match is true
 
 

@@ -20,14 +20,15 @@ module.exports = class RegExpHelper
 
 
   getRegExp: ->
-    return new RegExp('([\\s\\t]+?)' + @startTag + '([\\s\\S]*?)' + @endTag, 'g')
+    new RegExp('([\\s\\t]+?)' + @startTag + '([\\s\\S]*?)' + @endTag, 'g')
 
 
-  getReplacement: (reset = false)->
-    if not reset
-      '$1' + @startTag + @getTags() + '$1' + @endTag
-    else
-      '$1' + @startTag + defaultTags[@viewEngine].endTag
+  getReplacement: ->
+    '$1' + @startTag + @getTags() + '$1' + @endTag
+
+
+  getResetReplacement: ->
+    '$1' + @startTag + '$1' + @endTag
 
 
   getTags: ->
