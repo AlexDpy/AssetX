@@ -35,7 +35,7 @@ module.exports = class RegExpHelper
     html = ''
 
     if @env is 'prod'
-      html += '$1' + @tagPattern.replace('%src%', path.join(@assetConfig.prodBaseUrl, @assetConfig.filename))
+      html += '$1' + @tagPattern.replace('%src%', @assetConfig.prodBaseUrl + '/' + @assetConfig.filename)
     else
       for globPattern in @assetConfig.files
         for file in glob.sync path.join(@assetConfig.devFolder, globPattern)
