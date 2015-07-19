@@ -50,6 +50,10 @@ module.exports.validate = (config) ->
 module.exports.mergeRecursive = (config, options) ->
 
   for assetName, assetConfig of config.assets
+    if options.asset and assetName isnt options.asset
+      delete config.assets[assetName]
+      continue
+
     for key in ['devFolder', 'prodFolder', 'devBaseUrl', 'prodBaseUrl', 'cacheBusting']
       assetConfig[key] = config[key] if assetConfig[key] is undefined
 
@@ -86,5 +90,7 @@ module.exports.mergeRecursive = (config, options) ->
       assetConfig.oldFilename = oldProdAssets[0].replace assetConfig.prodFolder + '/', ''
 
     config.assets[assetName] = assetConfig
+
+  throw new Error 'no asset to process' if Object.keys(config.assets).length is 0
 
   config

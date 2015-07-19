@@ -25,7 +25,7 @@ module.exports = class AssetX
 
 
 
-  replace: () ->
+  replace: ->
     output.title 'Replacing'
 
     replaceTags @
@@ -102,6 +102,7 @@ module.exports = class AssetX
               output.log 'Update "' + viewFile + '"'
               fs.writeFileSync viewFile, data, encoding: 'utf8'
 
+        @options.asset = dest
         new AssetX(@options).replace()
       ).bind @
     )

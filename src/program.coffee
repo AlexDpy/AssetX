@@ -11,6 +11,7 @@ assetX = (program) ->
   options =
     configFile: path.join(process.cwd(), program.configFile)
     debug: program.debug or false
+    asset: program.asset
 
   new AssetX options
 
@@ -22,6 +23,7 @@ program
   .version pkg.version
   .option '-C, --config-file [path/to/config-file.yml]', 'path to yaml config file (default: assetx.yml)', 'assetx.yml'
   .option '-D, --debug', 'display more information in the console'
+  .option '-A, --asset [assetName]', 'the asset to process (default to all)'
 
 try
   program
@@ -55,6 +57,7 @@ try
     .arguments '<src> <dest>'
     .description 'move an asset'
     .action (src, dest) ->
+      program.asset = src
       assetX(program).mv(src, dest)
 
   program.parse process.argv
