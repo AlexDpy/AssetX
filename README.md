@@ -35,13 +35,20 @@ prodFolder: web/assets
 devBaseUrl: /.tmp_assets
 prodBaseUrl: /assets
 
-# (optional, default to false) if true, prod assets names will have a [rev-hash](https://github.com/sindresorhus/rev-hash)
+# (optional, default to false) if true, prod assets names will have a rev-hash (https://github.com/sindresorhus/rev-hash)
 cacheBusting: true
 
-# (optional) implement this to customize some of the [tags](./src/tags.coffee) AssetX will generate
+# (optional) implement this to customize some of the tags AssetX will generate (./src/tags.coffee)
 tags:
     twig:
         js: '<script type="text/javascript" src="%src%"></script>'
+
+# (optional) implement this to override the gulp tasks AssetX will pipe (./src/tasks.coffee)
+tasks:
+    js:
+        gulp-uglify: # this key will be used to require the gulp module
+            # an array of arguments that will be applied on the module
+            - { mangle: false }
 
 # (required) list of assets AssetX will take into account
 assets:
@@ -62,6 +69,9 @@ assets:
         prodBaseUrl: 'http://cdn.my-project.com'
         tags:
             twig: '<link rel="stylesheet" href="%src%" media="print">'
+        tasks:
+            gulp-minify-css:
+                - { keepSpecialComments: 0 }
 ```
 
 ### Views
