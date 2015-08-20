@@ -4,6 +4,7 @@ path = require 'path'
 glob = require 'glob'
 selectn = require 'selectn'
 defaultTags = require './tags'
+defaultTasks = require './tasks'
 revHash = require 'rev-hash'
 
 
@@ -66,6 +67,11 @@ module.exports.mergeRecursive = (config, options) ->
         selectn('tags.' + assetConfig.ext, defaults)
 
     assetConfig.tags = tags
+
+    assetConfig.tasks = selectn('tasks', assetConfig) or
+      selectn('tasks.' + assetConfig.ext, config) or
+      selectn(assetConfig.ext, defaultTasks) or
+      {}
 
     regexp = new RegExp '([.*\/]*?)(.*)(\.' + assetConfig.ext + ')', 'g'
 

@@ -3,8 +3,6 @@ glob = require 'glob'
 path = require 'path'
 gulp = require 'gulp'
 concat = require 'gulp-concat'
-uglify = require 'gulp-uglify'
-minifyCss = require 'gulp-minify-css'
 mv = require 'mv'
 output = require './output'
 config = require './config'
@@ -35,18 +33,22 @@ module.exports = class AssetX
   concat: ->
     output.title 'Concatenating'
 
+    module.paths.push path.join(process.cwd(), 'node_modules')
+    module.paths.push process.cwd()
+
     for assetName, assetConfig of @config.assets
       output.log 'Concat ' + assetName
 
-      specialPipe = if assetConfig.ext is 'css' then minifyCss else uglify
+      stream = gulp.src(assetConfig.files.map (value) ->
+        path.join assetConfig.devFolder, value
+      )
 
-      gulp
-        .src(assetConfig.files.map (value) ->
-          path.join assetConfig.devFolder, value
-        )
-        .pipe concat(assetConfig.filename)
-        .pipe specialPipe.call()
-        .pipe gulp.dest(path.join assetConfig.prodFolder)
+      stream = stream.pipe concat(assetConfig.filename)
+
+      for task, args of assetConfig.tasks
+        stream = stream.pipe require(task).apply(null, args)
+
+      stream = stream.pipe gulp.dest(path.join assetConfig.prodFolder)
 
       if assetConfig.filename isnt assetConfig.oldFilename
         try
