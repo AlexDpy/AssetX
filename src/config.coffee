@@ -5,7 +5,7 @@ glob = require 'glob'
 selectn = require 'selectn'
 defaultTags = require './tags'
 defaultTasks = require './tasks'
-revHash = require 'rev-hash'
+crypto = require 'crypto'
 
 
 module.exports.read = (configFile) ->
@@ -80,9 +80,9 @@ module.exports.mergeRecursive = (config, options) ->
 
       for globPattern in assetConfig.files
         for file in glob.sync path.join(assetConfig.devFolder, globPattern)
-          buffers.push fs.readFileSync(file)
+          buffers.push fs.readFileSync(file, {encoding: 'utf8'})
 
-      hash = revHash Buffer.concat(buffers)
+      hash = crypto.createHash('md5').update(buffers.join(), 'utf8').digest('hex').slice(0, 10);
 
       assetConfig.filename = assetName.replace regexp, '$1$2_' + hash + '$3'
     else
