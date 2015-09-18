@@ -42,7 +42,7 @@ try
 
   program
     .command 'replace'
-    .description 'replace assetix tags in views'
+    .description 'replace assetx tags in views'
     .action ->
       assetX(program).replace()
 
