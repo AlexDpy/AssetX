@@ -75,7 +75,7 @@ module.exports.mergeRecursive = (config, options) ->
 
     regexp = new RegExp '([.*\/]*?)(.*)(\.' + assetConfig.ext + ')', 'g'
 
-    if assetConfig.cacheBusting is true
+    if assetConfig.cacheBusting is true or options.forceCacheBusting is true
       buffers = []
 
       for globPattern in assetConfig.files

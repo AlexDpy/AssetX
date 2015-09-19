@@ -12,6 +12,7 @@ assetX = (program) ->
     configFile: path.join(process.cwd(), program.configFile)
     debug: program.debug or false
     asset: program.asset
+    forceCacheBusting: program.forceCacheBusting or false
 
   new AssetX options
 
@@ -24,6 +25,7 @@ program
   .option '-C, --config-file [path/to/config-file.yml]', 'path to yaml config file (default: assetx.yml)', 'assetx.yml'
   .option '-D, --debug', 'display more information in the console'
   .option '-A, --asset [assetName]', 'the asset to process (default to all)'
+  .option '--force-cache-busting', 'force cache busting, even if cache busting configuration is set to false'
 
 try
   program
