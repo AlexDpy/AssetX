@@ -13,6 +13,7 @@ assetX = (program) ->
     debug: program.debug or false
     asset: program.asset
     forceCacheBusting: program.forceCacheBusting or false
+    disableCacheBusting: program.disableCacheBusting or false
 
   new AssetX options
 
@@ -25,7 +26,8 @@ program
   .option '-C, --config-file [path/to/config-file.yml]', 'path to yaml config file (default: assetx.yml)', 'assetx.yml'
   .option '-D, --debug', 'display more information in the console'
   .option '-A, --asset [assetName]', 'the asset to process (default to all)'
-  .option '--force-cache-busting', 'force cache busting, even if cache busting configuration is set to false'
+  .option '--force-cb, --force-cache-busting', 'force cache busting, even if cache busting configuration is set to false'
+  .option '--disable-cb, --disable-cache-busting', 'disable cache busting, even if cache busting configuration is set to true'
 
 try
   program
@@ -38,7 +40,7 @@ try
 
   program
     .command 'concat'
-    .description 'concat and minify assets'
+    .description 'concat assets'
     .action ->
       assetX(program).concat()
 
