@@ -36,7 +36,7 @@ devBaseUrl: /.tmp_assets
 prodBaseUrl: /assets
 
 # (optional, default to false) if true, prod assets file names will have a hash based on the dev assets content
-# this can be overridden by the --force-cache-busting option
+# this can be overridden by the --force-cache-busting and --disable-cache-busting options
 cacheBusting: true
 
 # (optional) implement this to customize some of the tags AssetX will generate (./src/tags.coffee)
