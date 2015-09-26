@@ -13,94 +13,84 @@ describe 'Configuration', ->
 
   describe 'validate configuration', ->
 
+    minimalConfig = {}
+
+    beforeEach ->
+      minimalConfig =
+        prodFolder: 'anywhere'
+        devFolder: 'anywhere'
+        prodBaseUrl: '/anywhere'
+        devBaseUrl: '/anywhere'
+        views: ['**/*.html']
+        assets:
+          "style.css":
+            files: ['style.css']
+
     it 'should throw an error if config.devFolder is missing', ->
       ( ->
-        config.validate
-          prodFolder: 'anywhere'
-          views: ['**/*.html']
-          assets:
-            "style.css":
-              files: ['style.css']
+        delete minimalConfig.devFolder
+        config.validate minimalConfig
       ).should.throw()
 
     it 'should throw an error if config.prodFolder is missing', ->
       ( ->
-        config.validate
-          devFolder: 'anywhere'
-          views: ['**/*.html']
-          assets:
-            "style.css":
-              files: ['style.css']
+        delete minimalConfig.prodFolder
+        config.validate minimalConfig
+      ).should.throw()
+
+    it 'should throw an error if config.devBaseUrl is missing', ->
+      ( ->
+        delete minimalConfig.devBaseUrl
+        config.validate minimalConfig
+      ).should.throw()
+
+    it 'should throw an error if config.prodBaseUrl is missing', ->
+      ( ->
+        delete minimalConfig.prodBaseUrl
+        config.validate minimalConfig
       ).should.throw()
 
     it 'should throw an error if config.views is missing', ->
       ( ->
-        config.validate
-          prodFolder: 'anywhere'
-          devFolder: 'anywhere'
-          assets:
-            "style.css":
-              files: ['style.css']
+        delete minimalConfig.views
+        config.validate minimalConfig
       ).should.throw()
 
     it 'should throw an error if config.views is not an array', ->
       ( ->
-        config.validate
-          prodFolder: 'anywhere'
-          devFolder: 'anywhere'
-          views: {}
-          assets:
-            "style.css":
-              files: ['style.css']
+        minimalConfig.views = {}
+        config.validate minimalConfig
       ).should.throw()
 
     it 'should throw an error if config.views is empty', ->
       ( ->
-        config.validate
-          prodFolder: 'anywhere'
-          devFolder: 'anywhere'
-          views: []
-          assets:
-            "style.css":
-              files: ['style.css']
+        minimalConfig.views = []
+        config.validate minimalConfig
       ).should.throw()
 
     it 'should throw an error if some config.views are not supported', ->
       ( ->
-        config.validate
-          prodFolder: 'anywhere'
-          devFolder: 'anywhere'
-          views: ['**/*.html', '**/*.unsupported_format']
-          assets:
-            "style.css":
-              files: ['style.css']
+        minimalConfig.views = ['**/*.html', '**/*.unsupported_format']
+        config.validate minimalConfig
       ).should.throw()
 
     it 'should throw an error if config.assets is missing', ->
       ( ->
-        config.validate
-          prodFolder: 'anywhere'
-          devFolder: 'anywhere'
-          views: ['**/*.html']
+        delete minimalConfig.assets
+        config.validate minimalConfig
       ).should.throw()
 
     it 'should throw an error if config.assets is not an object', ->
       ( ->
-        config.validate
-          prodFolder: 'anywhere'
-          devFolder: 'anywhere'
-          views: ['**/*.html']
-          assets: 'lol'
+        minimalConfig.assets = 'lol'
+        config.validate minimalConfig
       ).should.throw()
 
     it 'should throw an error if somme config.assets are malformed', ->
       ( ->
-        config.validate
-          prodFolder: 'anywhere'
-          devFolder: 'anywhere'
-          views: ['**/*.html']
-          assets:
-            "style.css":
-              file: ['style.css']
+        minimalConfig.assets =
+          "style.css":
+            file: ['style.css']
+        config.validate minimalConfig
       ).should.throw()
 

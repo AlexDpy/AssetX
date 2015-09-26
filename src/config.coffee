@@ -17,8 +17,9 @@ module.exports.validate = (config) ->
   errors = []
 
   errors.push 'config.devFolder is not defined' if config.devFolder is undefined
-
   errors.push 'config.prodFolder is not defined' if config.prodFolder is undefined
+  errors.push 'config.devBaseUrl is not defined' if config.devBaseUrl is undefined
+  errors.push 'config.prodBaseUrl is not defined' if config.prodBaseUrl is undefined
 
   if config.views is undefined
     errors.push 'config.views is not defined'
