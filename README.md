@@ -4,8 +4,6 @@
 
 AssetX manages front-end assets and takes care about dev/production environments
 
-##### Work in progress, please take care.
-
 ## Install
 
 ```
