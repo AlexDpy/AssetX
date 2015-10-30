@@ -1,4 +1,4 @@
-# AssetX
+# AssetX [![Build Status](https://david-dm.org/AlexDpy/AssetX.png)](https://david-dm.org/AlexDpy/AssetX)
 
 > Manage front-end assets
 
