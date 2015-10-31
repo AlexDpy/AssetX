@@ -1,4 +1,4 @@
-# AssetX [![Build Status](https://david-dm.org/AlexDpy/AssetX.png)](https://david-dm.org/AlexDpy/AssetX)
+# AssetX [![Build Status](https://travis-ci.org/AlexDpy/AssetX.svg?branch=master)](https://travis-ci.org/AlexDpy/AssetX) [![Build Status](https://david-dm.org/AlexDpy/AssetX.png)](https://david-dm.org/AlexDpy/AssetX)
 
 > Manage front-end assets
 
